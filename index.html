@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 | New Year Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #000;
+            color: white;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Header */
+        .header {
+            position: absolute;
+            top: 10%;
+            text-align: center;
+            width: 100%;
+            z-index: 20;
+            opacity: 0;
+            animation: fadeInDown 1.5s ease-out 0.5s forwards;
+        }
+        
+        .greeting {
+            font-size: 5rem;
+            font-weight: 300;
+            letter-spacing: 8px;
+            margin-bottom: 1rem;
+            color: #FFD700;
+            text-transform: uppercase;
+            text-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.5),
+                0 0 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 4px;
+            margin-top: 1rem;
+            animation: subtitleGlow 3s infinite alternate;
+        }
+        
+        @keyframes subtitleGlow {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        }
+        
+        /* Year Display - FIXED for 3-second appearance */
+        .year-display {
+            position: relative;
+            height: 40vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        
+        .year-digit {
+            font-size: 25vw;
+            font-weight: 900;
+            position: absolute;
+            font-family: 'Arial Black', sans-serif;
+        }
+        
+        .year-2025 {
+            color: rgba(255, 215, 0, 0.3);
+            text-shadow: 
+                0 0 50px rgba(255, 215, 0, 0.4),
+                0 0 100px rgba(255, 215, 0, 0.2);
+            animation: 
+                yearPulse 4s infinite ease-in-out,
+                floatUp 20s infinite linear;
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+        
+        .year-2026 {
+            color: #FFD700;
+            text-shadow: 
+                0 0 80px rgba(255, 215, 0, 0.8),
+                0 0 160px rgba(255, 215, 0, 0.6),
+                0 0 240px rgba(255, 215, 0, 0.4);
+            opacity: 0;
+            transform: translateY(100vh) scale(0.5) rotateY(180deg);
+            z-index: 1;
+        }
+        
+        @keyframes yearPulse {
+            0%, 100% { 
+                filter: brightness(1) contrast(1);
+                transform: scale(1);
+            }
+            50% { 
+                filter: brightness(1.2) contrast(1.1);
+                transform: scale(1.02);
+            }
+        }
+        
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(1deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-10px) rotate(-1deg); }
+        }
+        
+        /* Button - HIDDEN initially */
+        .transition-container {
+            position: absolute;
+            bottom: 15%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 30;
+            opacity: 0; /* Hidden initially */
+            visibility: hidden;
+        }
+        
+        .transition-btn {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #FFD700;
+            padding: 22px 65px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #FFD700;
+            cursor: pointer;
+            border-radius: 50px;
+            overflow: hidden;
+            letter-spacing: 3px;
+            backdrop-filter: blur(15px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+        }
+        
+        /* Button will only appear at the end */
+        .show-button {
+            opacity: 1;
+            visibility: visible;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+        
+        /* HIDDEN Progress Bar */
+        .progress-container {
+            position: absolute;
+            bottom: 20%;
+            width: 100%;
+            max-width: 300px;
+            height: 4px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0; /* Hidden */
+            visibility: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FFD700, #FF8C00);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* Transition Line */
+        .transition-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(to bottom, 
+                transparent,
+                #FFD700,
+                #FF8C00,
+                #FFD700,
+                transparent);
+            opacity: 0;
+            z-index: 15;
+            border-radius: 2px;
+            box-shadow: 
+                0 0 30px #FFD700,
+                0 0 60px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* Background Elements */
+        .bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Animated Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: orbFloat 25s infinite linear;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #FFD700, transparent 70%);
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+            animation-duration: 30s;
+        }
+        
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #004e92, transparent 70%);
+            bottom: 15%;
+            right: 20%;
+            animation-delay: -10s;
+            animation-duration: 35s;
+        }
+        
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            25% { transform: translate(100px, 50px) rotate(90deg) scale(1.1); }
+            50% { transform: translate(50px, 100px) rotate(180deg) scale(1); }
+            75% { transform: translate(-50px, 50px) rotate(270deg) scale(0.9); }
+            100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+        }
+        
+        /* Animated Particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+            animation: particleFloat 10s infinite linear;
+        }
+        
+        @keyframes particleFloat {
+            0% { 
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-100vh) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* Animated Grid */
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s infinite linear;
+            z-index: -1;
+        }
+        
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+        
+        /* Animated Stars */
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: starTwinkle 3s infinite alternate;
+        }
+        
+        @keyframes starTwinkle {
+            0%, 100% { 
+                opacity: 0.1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.2);
+            }
+        }
+        
+        /* Animated Rings */
+        .ring {
+            position: absolute;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            animation: ringExpand 8s infinite linear;
+            z-index: -1;
+        }
+        
+        @keyframes ringExpand {
+            0% { 
+                transform: scale(0); 
+                opacity: 1;
+                border-width: 2px;
+            }
+            100% { 
+                transform: scale(4); 
+                opacity: 0;
+                border-width: 0;
+            }
+        }
+        
+        /* Animation keyframes */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes yearTransition {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0.5) rotateY(180deg);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(0) scale(1.1) rotateY(0deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotateY(0deg);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .greeting {
+                font-size: 4rem;
+            }
+            
+            .year-digit {
+                font-size: 22vw;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .greeting {
+                font-size: 3rem;
+                letter-spacing: 5px;
+            }
+            
+            .year-digit {
+                font-size: 20vw;
+            }
+            
+            .transition-btn {
+                padding: 18px 45px;
+                font-size: 1.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .greeting {
+                font-size: 2.2rem;
+                letter-spacing: 3px;
+            }
+            
+            .year-digit {
+                font-size: 18vw;
+            }
+            
+            .transition-btn {
+                padding: 16px 35px;
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+            
+            .header {
+                top: 8%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Animated Grid Background -->
+        <div class="grid-lines"></div>
+        
+        <!-- Animated Background Elements -->
+        <div class="bg-elements" id="bgElements"></div>
+        
+        <!-- Header -->
+        <div class="header">
+            <h1 class="greeting">Happy New Year</h1>
+            <p class="subtitle">The Future Awaits</p>
+        </div>
+        
+        <!-- Year Display -->
+        <div class="year-display">
+            <div class="year-digit year-2025" id="year2025">2025</div>
+            <div class="year-digit year-2026" id="year2026">2026</div>
+            <div class="transition-line" id="transitionLine"></div>
+        </div>
+        
+        <!-- Hidden Progress Bar -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <!-- Button - Hidden Initially -->
+        <div class="transition-container" id="transitionContainer">
+            <button class="transition-btn" id="transitionBtn">
+                <span class="btn-text" id="btnText">Watch Again</span>
+                <i class="fas fa-redo btn-icon"></i>
+                <div class="btn-shine"></div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const year2025 = document.getElementById('year2025');
+        const year2026 = document.getElementById('year2026');
+        const transitionLine = document.getElementById('transitionLine');
+        const transitionContainer = document.getElementById('transitionContainer');
+        const transitionBtn = document.getElementById('transitionBtn');
+        const btnText = document.getElementById('btnText');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const bgElements = document.getElementById('bgElements');
+        
+        // Create animated stars
+        function createStars() {
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 3 + 1;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const delay = Math.random() * 5;
+                
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.animationDelay = `${delay}s`;
+                
+                document.querySelector('.container').appendChild(star);
+            }
+        }
+        
+        // Create particle explosion
+        function createExplosion(x, y, count = 100, color = '#FFD700') {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    const size = Math.random() * 8 + 4;
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 200 + 100;
+                    const colors = ['#FFD700', '#FF8C00', '#FF6B6B', '#4ECDC4'];
+                    const particleColor = color === 'random' ? colors[Math.floor(Math.random() * colors.length)] : color;
+                    
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+                    particle.style.backgroundColor = particleColor;
+                    particle.style.boxShadow = `0 0 ${size * 2}px ${particleColor}`;
+                    
+                    const animation = particle.animate([
+                        {
+                            transform: 'translate(0, 0) scale(1)',
+                            opacity: 1
+                        },
+                        {
+                            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
+                            opacity: 0
+                        }
+                    ], {
+                        duration: 1500 + Math.random() * 1000,
+                        easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                    });
+                    
+                    document.querySelector('.container').appendChild(particle);
+                    
+                    animation.onfinish = () => {
+                        particle.remove();
+                    };
+                }, i * 10);
+            }
+        }
+        
+        // Create rings
+        function createRing(x, y, delay = 0) {
+            setTimeout(() => {
+                const ring = document.createElement('div');
+                ring.className = 'ring';
+                
+                ring.style.width = '100px';
+                ring.style.height = '100px';
+                ring.style.left = `${x}px`;
+                ring.style.top = `${y}px`;
+                ring.style.borderColor = '#FFD700';
+                ring.style.animation = 'ringExpand 2s ease-out';
+                
+                document.querySelector('.container').appendChild(ring);
+                
+                setTimeout(() => {
+                    ring.remove();
+                }, 2000);
+            }, delay);
+        }
+        
+        // Auto-start transition after 2 seconds
+        function startAutoTransition() {
+            console.log("Auto transition starting...");
+            
+            const rect = year2025.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Step 1: 2025 exit
+            setTimeout(() => {
+                year2025.style.transition = 'all 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                year2025.style.opacity = '0';
+                year2025.style.transform = 'translateY(-100px) scale(0.8) rotateX(-90deg)';
+                createExplosion(centerX, centerY, 80);
+                
+                // Step 2: Transition line
+                setTimeout(() => {
+                    transitionLine.style.transition = 'all 2s cubic-bezier(0.4, 0, 0.2, 1)';
+                    transitionLine.style.opacity = '1';
+                    transitionLine.style.height = '400px';
+                    
+                    // Particles along line
+                    for (let i = 0; i < 20; i++) {
+                        setTimeout(() => {
+                            const particle = document.createElement('div');
+                            particle.className = 'particle';
+                            
+                            const size = Math.random() * 6 + 3;
+                            const yPos = centerY - 200 + (i * 20);
+                            
+                            particle.style.width = `${size}px`;
+                            particle.style.height = `${size}px`;
+                            particle.style.left = `${centerX}px`;
+                            particle.style.top = `${yPos}px`;
+                            particle.style.backgroundColor = '#FFD700';
+                            particle.style.boxShadow = `0 0 ${size * 2}px #FFD700`;
+                            
+                            const animation = particle.animate([
+                                { opacity: 1, transform: 'scale(1)' },
+                                { opacity: 0, transform: 'scale(0)' }
+                            ], { duration: 800, easing: 'ease-out' });
+                            
+                            document.querySelector('.container').appendChild(particle);
+                            
+                            animation.onfinish = () => {
+                                particle.remove();
+                            };
+                        }, i * 100);
+                    }
+                    
+                    // Step 3: 2026 entrance - APPEARS FOR 3 SECONDS
+                    setTimeout(() => {
+                        year2026.style.animation = 'yearTransition 2s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+                        createExplosion(centerX, centerY, 150);
+                        
+                        // Multiple rings
+                        for (let i = 0; i < 8; i++) {
+                            createRing(centerX, centerY, i * 250);
+                        }
+                        
+                        // Step 4: Keep 2026 visible for 3 seconds
+                        setTimeout(() => {
+                            // Hide transition line
+                            transitionLine.style.transition = 'all 1s ease-out';
+                            transitionLine.style.opacity = '0';
+                            transitionLine.style.height = '0';
+                            
+                            // FIX: Keep 2026 visible for 3 seconds
+                            setTimeout(() => {
+                                // Add continuous pulse to 2026 for the 3-second display
+                                year2026.style.animation = `
+                                    yearPulse 1s infinite ease-in-out,
+                                    floatUp 10s infinite linear
+                                `;
+                                
+                                // Update greeting
+                                document.querySelector('.greeting').textContent = 'Welcome to 2026';
+                                document.querySelector('.subtitle').textContent = 'A New Journey Begins';
+                                
+                                createExplosion(centerX, centerY, 100, 'random');
+                                
+                                // After 3 seconds, hide 2026 and show button
+                                setTimeout(() => {
+                                    year2026.style.opacity = '0';
+                                    year2026.style.transform = 'translateY(100vh) scale(0.5)';
+                                    
+                                    // Show button
+                                    transitionContainer.classList.add('show-button');
+                                    transitionBtn.onclick = resetAnimation;
+                                    
+                                    // Final explosion
+                                    createExplosion(centerX, centerY, 80, '#FF8C00');
+                                }, 3000); // 2026 stays for 3 seconds
+                                
+                            }, 1000);
+                        }, 1000);
+                    }, 1500);
+                }, 1500);
+            }, 1500);
+        }
+        
+        // Reset Animation
+        function resetAnimation() {
+            // Reset 2025
+            year2025.style.transition = 'all 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            year2025.style.opacity = '1';
+            year2025.style.transform = 'translateY(0) scale(1) rotateX(0)';
+            year2025.style.animation = 'yearPulse 4s infinite ease-in-out, floatUp 20s infinite linear';
+            
+            // Reset 2026
+            year2026.style.animation = 'none';
+            year2026.style.opacity = '0';
+            year2026.style.transform = 'translateY(100vh) scale(0.5) rotateY(180deg)';
+            
+            // Hide button
+            transitionContainer.classList.remove('show-button');
+            
+            // Reset greeting
+            document.querySelector('.greeting').textContent = 'Happy New Year';
+            document.querySelector('.subtitle').textContent = 'The Future Awaits';
+            
+            // Reset explosion
+            const rect = year2025.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            createExplosion(centerX, centerY, 60, 'random');
+            
+            // Start auto transition again after 1 second
+            setTimeout(startAutoTransition, 1000);
+        }
+        
+        // Initialize
+        function init() {
+            // Create background animations
+            createStars();
+            
+            // Auto-create particles
+            setInterval(() => {
+                if (Math.random() > 0.5) {
+                    const x = Math.random() * window.innerWidth;
+                    const y = Math.random() * window.innerHeight;
+                    createExplosion(x, y, 10, 'random');
+                }
+            }, 2000);
+            
+            // Start auto transition after 2 seconds
+            setTimeout(startAutoTransition, 2000);
+            
+            // Add button hover effect
+            transitionBtn.addEventListener('mouseenter', () => {
+                const rect = transitionBtn.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                createExplosion(centerX, centerY, 15, 'random');
+            });
+        }
+        
+        // Start when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
